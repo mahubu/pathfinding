@@ -26,9 +26,10 @@ namespace pathfinding
 		void trace();
 
 	private:
-		bool find(const int relativeRow, const int relativeColumn, const Cell& current);
+		void initialize();
+		bool next(const int relativeRow, const int relativeColumn, const Cell& current);
 
-		Grid grid_;
+		const Grid grid_;
 		Cell source_;
 		Cell destination_;
 		/*

@@ -28,10 +28,7 @@ int main()
 
 	pathfinding::Cell source;
 	source.row = 8;
-	source.column = 0;
-	source.g = 0.0;
-	source.h = 0.0;
-	source.f = 0.0;
+	source.column = 9;
 
 	pathfinding::Cell destination;
 	destination.row = 0;

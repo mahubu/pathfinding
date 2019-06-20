@@ -7,28 +7,6 @@ namespace pathfinding
 {
 
 	Pathfinder::Pathfinder(const Grid& grid, const Cell& source, const Cell& destination) : grid_(grid), source_(source), destination_(destination) {
-		// Initialize the closed list with 'false' values.
-		for (unsigned int r = 0; r < grid_.rows; r++) {
-			std::vector<bool> closedRow;
-			for (unsigned int c = 0; c < grid_.columns; c++) {
-				closedRow.push_back(false);
-			}
-			closedList_.push_back(closedRow);
-		}
-
-		// Initialize the open list with the source, implemented as Red-Black Tree.
-		openList_.insert(std::make_pair(source_.f, source_));
-
-		// Initialize the open paths with empty cells.
-		for (unsigned int r = 0; r < grid_.rows; r++) {
-			std::vector<Cell> path;
-			for (unsigned int c = 0; c < grid_.columns; c++) {
-				Cell cell;
-				path.push_back(cell);
-			}
-			openPaths_.push_back(path);
-		}
-		openPaths_[source_.row][source_.column] = source_;
 	}
 
 	void Pathfinder::find()
@@ -51,6 +29,8 @@ namespace pathfinding
 			return;
 		}
 
+		initialize();
+
 		bool reached = false;
 		while (!openList_.empty())
 		{
@@ -64,14 +44,14 @@ namespace pathfinding
 			closedList_[cell.row][cell.column] = true;
 
 			// Generating the 8 neighbours of this cell.
-			reached |= find(-1, 0, cell); // North: i-1, j
-			reached |= find(-1, +1, cell);// N-E:   i-1, j+1
-			reached |= find(0, +1, cell); // East:  i  , j+1
-			reached |= find(1, 1, cell);  // S-E:   i+1, j+1
-			reached |= find(1, 0, cell);  // South: i+1, j
-			reached |= find(1, -1, cell); // S-W:   i+1, j-1
-			reached |= find(0, -1, cell); // West:  i  , j-1
-			reached |= find(-1, -1, cell);// N-W:   i-1, j-1
+			reached |= next(-1, 0, cell); // North: i-1, j
+			reached |= next(-1, +1, cell);// N-E:   i-1, j+1
+			reached |= next(0, +1, cell); // East:  i  , j+1
+			reached |= next(1, 1, cell);  // S-E:   i+1, j+1
+			reached |= next(1, 0, cell);  // South: i+1, j
+			reached |= next(1, -1, cell); // S-W:   i+1, j-1
+			reached |= next(0, -1, cell); // West:  i  , j-1
+			reached |= next(-1, -1, cell);// N-W:   i-1, j-1
 		}
 
 		if (reached)
@@ -113,7 +93,43 @@ namespace pathfinding
 		}
 	}
 
-	bool Pathfinder::find(const int relativeRow, const int relativeColumn, const Cell& current)
+	void Pathfinder::initialize()
+	{
+		// Clean source & destination.
+		source_.g = 0.0;
+		source_.h = 0.0;
+		source_.f = 0.0;
+		destination_.previousColumn = DEFAULT_COORDINATE;
+		destination_.previousRow = DEFAULT_COORDINATE;
+
+		// Initialize the closed list with 'false' values.
+		closedList_.clear();
+		for (unsigned int r = 0; r < grid_.rows; r++) {
+			std::vector<bool> closedRow;
+			for (unsigned int c = 0; c < grid_.columns; c++) {
+				closedRow.push_back(false);
+			}
+			closedList_.push_back(closedRow);
+		}
+
+		// Initialize the open list with the source, implemented as Red-Black Tree.
+		openList_.clear();
+		openList_.insert(std::make_pair(source_.f, source_));
+
+		// Initialize the open paths with empty cells.
+		openPaths_.clear();
+		for (unsigned int r = 0; r < grid_.rows; r++) {
+			std::vector<Cell> path;
+			for (unsigned int c = 0; c < grid_.columns; c++) {
+				Cell cell;
+				path.push_back(cell);
+			}
+			openPaths_.push_back(path);
+		}
+		openPaths_[source_.row][source_.column] = source_;
+	}
+
+	bool Pathfinder::next(const int relativeRow, const int relativeColumn, const Cell& current)
 	{
 		const int row = current.row + relativeRow;
 		const int column = current.column + relativeColumn;

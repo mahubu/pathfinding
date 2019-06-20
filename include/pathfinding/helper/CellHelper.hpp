@@ -50,7 +50,7 @@ namespace pathfinding
 	}
 
 	/**
-	* Calculate the euclidean distance from a cell (row, column) to a targeted cell.
+	* Calculate the Chebyshev (aka 'chessboard') distance from a cell (row, column) to a targeted cell.
 	*
 	* @param row the cell row.
 	* @param column the cell column.
@@ -60,8 +60,9 @@ namespace pathfinding
 	**/
 	inline double distance(int row, int column, const Cell& target)
 	{
-		// TODO use directly squared value instead to avoid unecessary overhead.
-		return sqrt((row - target.row) * (row - target.row) + (column - target.column) * (column - target.column));
+		int dr = abs(row - target.row);
+		int dc = abs(column - target.column);
+		return (double)(dr + dc - std::min(dr, dc));
 	}
 
 	/**
@@ -75,7 +76,7 @@ namespace pathfinding
 	**/
 	inline double heuristic(int row, int column, const Cell& destination)
 	{
-		// Euclidean distance is used in this example.
+		// Chebyshev distance is used in this example.
 		return distance(row, column, destination);
 	}
 
